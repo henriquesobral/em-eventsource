@@ -134,7 +134,13 @@ module EventMachine
     end
 
     def handle_headers(headers)
-      if headers.status != 200
+      if headers.status == 307
+        new_url = headers['LOCATION']
+        close
+        @url = new_url
+        start
+        return
+      elsif headers.status != 200
         close
         @errors.each { |error| error.call("Unexpected response status #{headers.status}") }
         return
